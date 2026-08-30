@@ -1,0 +1,90 @@
+version: "3.8"
+
+# =============================================================================
+# Netflix Live Content Analytics Platform - Production Docker Compose Stack
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. FastAPI Backend Service (REST API, Analytics Engine, Ingestion, Scheduler)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: netflix_analytics_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_BASE_URL=http://api:8000
+      - DATABASE_URL=sqlite:////app/data/netflix_live.db
+      - DATA_SOURCE_TYPE=csv
+      - DATA_SOURCE_PATH=/app/data/netflix_titles.csv
+      - DATA_UPDATE_MODE=insert_new_only
+      - ENABLE_SCHEDULER=true
+      - UPDATE_FREQUENCY_SECONDS=3600
+      - AUTO_REFRESH_ENABLED=true
+      - SOURCE_CHANGE_DETECTION=true
+      - LOG_LEVEL=INFO
+    volumes:
+      - netflix_data:/app/data
+      - netflix_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - netflix_network
+
+  # ---------------------------------------------------------------------------
+  # 2. Streamlit Dashboard Service (Interactive Netflix Dark-Themed UI)
+  # ---------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: netflix_analytics_dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api:8000
+      - DASHBOARD_HOST=0.0.0.0
+      - DASHBOARD_PORT=8501
+    volumes:
+      - netflix_logs:/app/logs
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 25s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - netflix_network
+
+# -----------------------------------------------------------------------------
+# Persistent Storage Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  netflix_data:
+    name: netflix_data
+    driver: local
+  netflix_logs:
+    name: netflix_logs
+    driver: local
+
+# -----------------------------------------------------------------------------
+# Isolated Container Bridge Network
+# -----------------------------------------------------------------------------
+networks:
+  netflix_network:
+    name: netflix_network
+    driver: bridge

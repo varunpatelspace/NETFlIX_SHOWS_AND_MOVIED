@@ -44,3 +44,15 @@ venv.bak/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Runtime database & platform artifacts
+*.db
+*.sqlite
+*.sqlite3
+data/netflix_live.db
+data/raw/
+logs/
+.pytest_cache/
+.env
+.venv/
+

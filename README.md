@@ -1,204 +1,440 @@
-# 🎬 Netflix Movies & TV Shows Data Analysis
+# 🎬 Netflix Live Content Analytics Platform
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Pandas](https://img.shields.io/badge/Pandas-2.0%2B-150458.svg?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Seaborn](https://img.shields.io/badge/Seaborn-0.12%2B-4c72b0.svg?style=for-the-badge)](https://seaborn.pydata.org/)
-[![Matplotlib](https://img.shields.io/badge/Matplotlib-3.7%2B-11557c.svg?style=for-the-badge)](https://matplotlib.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-FF4B4B.svg?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-D71F00.svg?style=flat-square&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/Tests-50%20Passed-46D369.svg?style=flat-square&logo=pytest&logoColor=white)](docs/testing.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-> An end-to-end Data Analysis, Exploratory Data Analysis (EDA), Data Cleaning, Data Visualization, and Business Intelligence project exploring Netflix's global catalog of movies and television shows.
+> An automated, production-grade full-stack data analytics and intelligence platform for entertainment content catalogs. Features automated 6-stage idempotent ETL ingestion, SHA-256 source change detection, relational database storage, a high-performance FastAPI REST backend, and an interactive Netflix-themed Streamlit analytics dashboard.
 
 ---
 
 ## 📌 Project Overview
 
-This project conducts an exhaustive, publication-grade exploratory data analysis of the **Netflix content catalog** (comprising 5,830+ titles spanning 1925 to 2020). By combining modular Python processing pipelines with an interactive Jupyter notebook and high-resolution visualization suites, the project investigates content distribution, geographic production footprints, genre popularity, temporal addition trends, maturity ratings, and runtime characteristics.
+The **Netflix Live Content Analytics Platform** transforms a static exploratory data analysis project into an enterprise-ready, automated data analytics platform. Rather than relying on one-off Jupyter notebooks that quickly become obsolete as catalogs evolve, this platform provides an autonomous, end-to-end data lifecycle:
 
-**Core Philosophy**: Strictly focused on rigorous exploratory data analysis, data cleaning, statistical modeling, publication-quality visualizations, and actionable business insights. **No machine learning or artificial complexity.**
-
----
-
-## 🎯 Objectives
-
-The analysis systematically answers 12 core business and exploratory questions:
-
-1. **Content Type Breakdown**: What is the proportion of Movies vs. TV Shows across the catalog?
-2. **Geographic Dominance**: Which countries produce the highest volume of Netflix content?
-3. **Genre Concentrations**: What are the most common genres and content categories?
-4. **Temporal Trajectory**: How has Netflix content acquisition scaled from 2008 through 2019?
-5. **Content Ingestion Seasonality**: What seasonal patterns govern monthly content additions?
-6. **Maturity & Ratings**: Which ratings and demographic tiers dominate the platform?
-7. **Prolific Directors**: Which directors have created the highest volume of titles?
-8. **Leading Cast Members**: Which actors appear most frequently globally and in key regional markets?
-9. **Movie Durations**: What is the statistical distribution of movie runtimes, and what are the outliers?
-10. **TV Show Longevity**: How are TV show seasons distributed (single-season vs. multi-season)?
-11. **Multi-Variate Heatmap**: How do top genres cluster across audience age groups?
-12. **Comparative Growth**: How does the expansion trajectory of Movies compare to TV Shows over time?
+1. **Monitors & Fingerprints**: Inspects upstream data sources (CSV/API) using streaming **SHA-256 cryptographic checksums** to detect updates.
+2. **Validates & Quarantines**: Enforces strict schema integrity, isolating anomalous records without crashing pipelines.
+3. **Cleans & Engineers**: Standardizes text, imputes missingness, and derives 19 analytical features (demographic tiers, runtime tiers, licensing latency).
+4. **Deduplicates Idempotently**: Employs two-tier collision resolution (in-batch Level A and database Level B) supporting both append-only and upsert modes with zero duplicate creation.
+5. **Persists & Audits**: Commits records to relational storage (SQLite/PostgreSQL) while logging execution durations and counts to an immutable audit ledger.
+6. **Analyzes & Exposes**: Computes descriptive statistics and observational insights exposed via a sub-15ms **FastAPI REST API**.
+7. **Presents Interactively**: Delivers a rich, multi-page **Streamlit Dashboard** featuring dynamic Plotly visualizations and catalog exploration.
+8. **Runs Portably**: Containerized into a multi-service **Docker Compose** stack with persistent volume storage and self-healing healthchecks.
 
 ---
 
-## 📊 Dataset Description
+## 🎯 Key Features
 
-The dataset reflects title metadata available in the Netflix library:
+### 🛠️ Data Engineering & ETL Pipeline
+* **Configurable Sources**: Pluggable `CSVDataSource` and `APIDataSource` unified via `DataSourceFactory`.
+* **Idempotent 6-Stage Pipeline**: Extract, Validate, Clean, Transform, Deduplicate, and Load.
+* **Row-Level Anomaly Quarantine**: Isolate malformed rows into quarantine logs without disrupting valid catalog titles.
+* **19 Engineered Derivative Features**: Calculates theatrical-to-platform licensing lag, 5 runtime duration tiers, 5-tier audience age groups, and multi-country production flags.
+* **Two-Tier Deduplication**: In-batch internal deduplication alongside relational database collision partitioning.
+* **Flexible Ingestion Modes**: Supports `insert_new_only` (rapid append) and `upsert` (metadata update).
 
-- **Total Records**: 5,837 raw records (5,834 after deduplication)
-- **Time Span**: Original releases from **1925 to 2020**; Netflix additions from **2008 to 2019**
-- **Catalog Breakdown**: 3,937 Movies (67.5%) and 1,897 TV Shows (32.5%)
+### 🗄️ Relational Database Layer
+* **SQLAlchemy 2.0 ORM**: Fully typed models with index optimization across `show_id`, `type`, `release_year`, `rating`, and countries.
+* **Dual Database Compatibility**: Native SQLite storage for local portability with zero-code PostgreSQL readiness.
+* **Repository Pattern**: Centralized `NetflixRepository` handling parameterized SQL queries and transactional batching with automated rollback safety.
 
-### Column Schema
-| Column | Description | Data Type | Notes |
-| :--- | :--- | :--- | :--- |
-| `show_id` | Unique title identifier | `int64` / `str` | Clean, non-null primary key |
-| `title` | Title name | `str` | Sanitized text |
-| `director` | Director name(s) | `str` | Multi-valued comma separated; 32.5% missing (imputed) |
-| `cast` | Actor/actress names | `str` | Multi-valued comma separated; 9.5% missing (imputed) |
-| `country` | Producing country/countries | `str` | Multi-valued comma separated; 7.3% missing (imputed) |
-| `date_added`| Date title was added to Netflix | `datetime` | Standardized ISO format; extracted year, month, day |
-| `release_year`| Original theatrical/broadcast premiere | `int64` | Range: 1925 – 2020 |
-| `rating` | Content maturity certification | `str` | TV-MA, TV-14, R, PG-13, etc. |
-| `duration` | Runtime or season count | `str` | Parsed into `duration_min` and `seasons` |
-| `listed_in` | Content genres/categories | `str` | Multi-valued comma separated (42 unique genres) |
-| `description`| Synopsis / plot premise | `str` | Clean text description |
-| `type` | Content format (`Movie` or `TV Show`) | `str` | Primary categorical segment |
+### 📊 Analytics & Insights Engine
+* **Multivariate Catalog Analysis**: Formats, top genres, country footprints, maturity ratings, and runtime characteristics.
+* **Audience Demographics**: 5-tier classification (`Adults 18+`, `Teens 13-17`, `Older Kids 7-12`, `Little Kids 0-6`, `Unrated`).
+* **Evidence-Based Insights**: Deterministic, rule-based observational business intelligence engine generating factual catalog statements.
+* **Multi-Dimensional Query Filtering**: Dynamic filtering by content type, year range, genre, country, and rating.
+
+### ⚡ RESTful API Backend (FastAPI)
+* **High Performance**: Sub-15ms cached response times with automatic Pydantic request/response validation.
+* **Comprehensive Endpoint Suite**: Health checks, aggregated dashboard summaries, domain analytics, and paginated content exploration.
+* **Full-Text Catalog Search**: SQL-powered multi-column search across title, director, and cast.
+* **Interactive Documentation**: Auto-generated Swagger UI (`/docs`) and ReDoc (`/redoc`).
+
+### 🎬 Interactive Streamlit Dashboard
+* **Netflix Dark Design Aesthetic**: Curated palette (`#141414` background, `#1F1F1F` cards, `#E50914` signature red accent).
+* **Multi-Page Experience**: Executive Overview, Content Analysis, Temporal Trends, Geographic Footprint, Ratings & Demographics, Duration & Longevity, Content Explorer, and Data Management.
+* **Decoupled Architecture**: Frontend queries backend via HTTP `ApiClient`, avoiding direct database locks.
+* **Global Persistent Sidebar Filters**: Filter state persists seamlessly across all dashboard pages with a 1-click reset.
+
+### ⏱️ Automation, Scheduling & Monitoring
+* **Background Scheduler**: Integrated `APScheduler` executing non-blocking interval syncs.
+* **Cryptographic Change Detection**: SHA-256 fingerprinting skips heavy ETL operations when source data is unchanged.
+* **Persistent Audit Ledger**: Tracks every execution run (`RUNNING`, `SUCCESS`, `SKIPPED`, `FAILED`, `PARTIAL_SUCCESS`) with durations and row metrics.
+* **Concurrency Guard**: Thread-level process locks reject conflicting triggers (`HTTP 409 Conflict`).
+
+### 🐳 Deployment & Production Readiness
+* **Containerized Architecture**: Multi-service `docker-compose.yml` coordinating FastAPI and Streamlit.
+* **Volume Persistence**: Named volumes (`netflix_data`, `netflix_logs`) preserve SQLite databases across container lifecycles.
+* **Container Health Probes**: Native healthchecks ensure proper service startup sequencing.
+* **Structured Logging**: Automatic dispatch to `application.log`, `pipeline.log`, and `scheduler.log`.
 
 ---
 
-## 🛠️ Technologies Used
+## 🏛️ System Architecture
 
-- **Language**: Python 3.10+
-- **Data Manipulation**: [Pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/)
-- **Data Visualization**: [Matplotlib](https://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/)
-- **Interactive Exploration**: [Jupyter Notebook](https://jupyter.org/)
-- **Styling Architecture**: Custom dark-mode Netflix palette (`#E50914`, `#141414`, `#1F1F1F`, `#FFFFFF`)
+```mermaid
+flowchart TD
+    subgraph Data_Sources["Data Source Layer"]
+        DS_CSV["CSV Source (netflix_titles.csv)"]
+        DS_API["REST API Source (Mock / Live)"]
+    end
+
+    subgraph Automation["Automation & Scheduling"]
+        SCHED["APScheduler Background Runner"]
+        LOCK["Concurrency Lock (Process Guard)"]
+        MON["SourceMonitor (SHA-256 Checksum)"]
+    end
+
+    subgraph Pipeline["6-Stage ETL Pipeline"]
+        EXT["1. Extract (Factory)"]
+        VAL["2. Validate (Fatal & Quarantine)"]
+        CLN["3. Clean & Impute"]
+        TRN["4. Transform & Feature Engineering"]
+        DED["5. Two-Tier Deduplication"]
+        LOD["6. Load (Insert / Upsert)"]
+    end
+
+    subgraph Storage["Database Layer"]
+        DB[(SQLite / PostgreSQL)]
+        REPO["NetflixRepository"]
+        RUNS["PipelineRun (Audit Ledger)"]
+        STATE["SourceState (Fingerprints)"]
+    end
+
+    subgraph Engine["Analytics Engine"]
+        ANL["AnalyticsService"]
+        INS["Observational Insights"]
+    end
+
+    subgraph API["FastAPI Backend (:8000)"]
+        RT_HEALTH["/health"]
+        RT_ANL["/api/v1/analytics/*"]
+        RT_CONT["/api/v1/content"]
+        RT_PIPE["/api/v1/pipeline/*"]
+        DOCS["/docs (Swagger UI)"]
+    end
+
+    subgraph UI["Streamlit Dashboard (:8501)"]
+        APP["Executive Overview"]
+        PAGES["Analytics Pages (1 to 8)"]
+        EXPLORE["Content Explorer"]
+        MGMT["Pipeline Audit & Refresh"]
+    end
+
+    DS_CSV & DS_API --> EXT
+    SCHED --> MON
+    MON -- Source Changed --> LOCK --> EXT
+    MON -- Unchanged --> SKP["Log SKIPPED to Audit"] --> RUNS
+
+    EXT --> VAL --> CLN --> TRN --> DED --> LOD
+    LOD --> DB
+    LOD --> RUNS & STATE
+
+    DB --> REPO --> ANL & INS
+    ANL & INS --> API
+    REPO --> RT_CONT
+    RUNS & STATE --> RT_PIPE
+
+    API -- HTTP / JSON --> UI
+```
+
+*For detailed architectural layer specifications, read [`docs/architecture.md`](docs/architecture.md).*
+
+---
+
+## 🔄 End-to-End Data Flow
+
+The lifecycle of a catalog record flows through a deterministic 16-stage pipeline:
+
+```text
+Raw CSV / API Data
+        ↓
+Data Source Factory (Capture Extraction Timestamp & File Metadata)
+        ↓
+Schema Validation (Fatal Schema Check / Row Anomaly Quarantine)
+        ↓
+Text Cleaning & Whitespace Normalization (Null Imputation)
+        ↓
+Feature Engineering (Derive 19 features: lag, age_group, duration_min, tiers)
+        ↓
+Level A Deduplication (In-batch title + type + release_year collisions)
+        ↓
+Level B Deduplication (Database show_id collision check: New vs Existing)
+        ↓
+Transactional Ingestion (Mode: 'insert_new_only' or 'upsert')
+        ↓
+Relational Database Commit (Rollback on exception)
+        ↓
+Analytics Engine (SQL multi-criteria dynamic aggregation)
+        ↓
+FastAPI Backend (Pydantic serialization & sub-15ms caching)
+        ↓
+Streamlit Dashboard (Interactive Plotly dark visualizations)
+```
+
+*For complete lifecycle details and error handling, consult [`docs/data_flow.md`](docs/data_flow.md).*
+
+---
+
+## 💻 Technology Stack
+
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Language** | [Python 3.10+](https://www.python.org/) | Core language across all platform layers |
+| **Data Processing** | [Pandas 2.0+](https://pandas.pydata.org/), [NumPy](https://numpy.org/) | Ingestion, feature engineering, and statistical modeling |
+| **Database & ORM** | [SQLite](https://www.sqlite.org/), [SQLAlchemy 2.0+](https://www.sqlalchemy.org/) | Relational storage, schema migrations, and connection pooling |
+| **Backend API** | [FastAPI](https://fastapi.tiangolo.com/), [Pydantic 2.0+](https://docs.pydantic.dev/) | RESTful API endpoints, request validation, and OpenAPI specs |
+| **ASGI Web Server** | [Uvicorn](https://www.uvicorn.org/) | High-performance asynchronous production ASGI web server |
+| **Frontend UI** | [Streamlit](https://streamlit.io/) | Multi-page interactive analytical web dashboard |
+| **Visualization** | [Plotly](https://plotly.com/python/), [Matplotlib](https://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/) | Interactive dark mode charts and publication-grade static exports |
+| **Automation** | [APScheduler 3.10+](https://apscheduler.readthedocs.io/) | Background job scheduling and periodic catalog ingestion |
+| **Testing** | [Pytest 7.0+](https://pytest.org/), [HTTPX](https://www.python-httpx.org/) | Automated unit, integration, and API testing (50 tests) |
+| **Containerization**| [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/) | Multi-container image packaging and persistent volume management |
+| **Config & Logging**| [Python-Dotenv](https://github.com/theskumar/python-dotenv), Logging | Centralized settings, multi-environment configs, and dedicated loggers |
 
 ---
 
 ## 📂 Project Structure
 
-```
-Netflix-Movies-Shows-Analysis/
-├── data/
-│   ├── netflix_titles.csv              # Raw Netflix dataset
-│   └── netflix_cleaned.csv             # Cleaned, standardized, feature-engineered dataset
-├── notebooks/
-│   └── netflix_analysis.ipynb          # Complete, interactive exploratory Jupyter Notebook
-├── src/
-│   ├── __init__.py                     # Package initializer
-│   ├── data_cleaning.py                # Data loading, deduplication, imputation & feature engineering
-│   ├── exploratory_analysis.py         # Modular statistical calculations for EDA sections A through J
-│   └── visualization.py                # Publication-quality dark-mode plotting suite (12 figures)
-├── visualizations/                     # 12 high-resolution saved charts (300 DPI PNG)
-│   ├── 01_movies_vs_tvshows.png
-│   ├── 02_top10_countries.png
-│   ├── 03_top10_genres.png
-│   ├── 04_content_growth_over_years.png
-│   ├── 05_monthly_content_additions.png
-│   ├── 06_rating_distribution.png
-│   ├── 07_top_directors.png
-│   ├── 08_top_actors.png
-│   ├── 09_movie_duration_distribution.png
-│   ├── 10_tvshow_seasons_distribution.png
-│   ├── 11_genre_rating_heatmap.png
-│   └── 12_movies_vs_tvshows_growth.png
-├── reports/
-│   └── insights.md                     # Comprehensive business intelligence & strategy report
-├── run_analysis.py                     # Master execution pipeline running full workflow
-├── requirements.txt                    # Pinned Python package dependencies
-├── .gitignore                          # Standard git ignore rules
-└── README.md                           # Project documentation & portfolio showcase
+```text
+Netflix Shows and Movies/
+├── analytics/                      # Database-driven Analytics Engine
+│   ├── analytics_service.py        # Central analytics facade
+│   ├── content_analysis.py         # Format and genre analyzers
+│   ├── duration_analysis.py        # Film runtimes and season longevity
+│   ├── geographic_analysis.py      # Territory rankings & co-productions
+│   ├── insights.py                 # Evidence-based business insights generator
+│   ├── overview.py                 # High-level catalog KPIs
+│   ├── rating_analysis.py          # Maturity ratings & 5-tier demographics
+│   └── temporal_analysis.py        # Yearly trajectories & seasonality
+├── api/                            # FastAPI REST Backend Service
+│   ├── dependencies.py             # Database and service dependency injection
+│   ├── main.py                     # App entrypoint, CORS, lifespan context manager
+│   ├── routes/                     # REST Route Handlers
+│   │   ├── analytics.py            # Aggregated summary & domain metrics
+│   │   ├── content.py              # Paginated catalog browsing & search
+│   │   ├── health.py               # System health & database probes
+│   │   └── pipeline.py             # Ingestion status, refresh & audit history
+│   └── schemas/                    # Pydantic Request/Response Data Contracts
+├── automation/                     # Scheduling & Ingestion Automation
+│   ├── jobs.py                     # Concurrency-guarded execution wrapper
+│   ├── pipeline_monitor.py         # Audit ledger tracking & persistence
+│   ├── scheduler.py                # APScheduler lifecycle manager
+│   └── source_monitor.py           # SHA-256 checksum & change detector
+├── config/                         # Central Configuration & Logging
+│   ├── logging_config.py           # Structured production logging setup
+│   └── settings.py                 # Multi-environment parameters & paths
+├── dashboard/                      # Interactive Streamlit Web UI
+│   ├── app.py                      # Executive Overview landing page
+│   ├── components/                 # Reusable UI presentation components
+│   │   ├── api_client.py           # Decoupled HTTP API client
+│   │   ├── charts.py               # Reusable Plotly dark chart constructors
+│   │   ├── filters.py              # Persistent global sidebar filters
+│   │   ├── metrics.py              # KPI card row and freshness banners
+│   │   └── styling.py              # Netflix custom dark mode CSS
+│   └── pages/                      # Multi-Page Dashboard Views
+│       ├── 1_Overview.py           # Executive catalog summary
+│       ├── 2_Content_Analysis.py   # Formats & genre specializations
+│       ├── 3_Temporal_Trends.py    # Additions, release trends & seasonality
+│       ├── 4_Geographic_Analysis.py# Interactive world map & co-productions
+│       ├── 5_Ratings_and_Audience.py# Maturity codes & demographic tiers
+│       ├── 6_Duration_Analysis.py  # Runtime percentiles & TV longevity
+│       ├── 7_Content_Explorer.py   # Full-text search & title inspector
+│       └── 8_Data_Management.py    # Live scheduler status & audit ledger
+├── database/                       # Relational Persistence Layer
+│   ├── database.py                 # Engine, SessionLocal, init_db()
+│   ├── models.py                   # ORM Entities (Catalog, Runs, State)
+│   └── repository.py               # Parameterized SQL repository
+├── docs/                           # Comprehensive Engineering Documentation
+│   ├── api_guide.md                # REST API endpoint reference
+│   ├── architecture.md             # 10-layer architectural guide
+│   ├── data_flow.md                # 16-stage record lifecycle specification
+│   ├── docker_deployment.md        # Container setup & operations guide
+│   ├── installation.md             # Step-by-step local developer setup
+│   ├── portfolio_description.md    # Resume & portfolio project descriptions
+│   ├── presentation_summary.md     # SIH / project defense briefing
+│   ├── screenshots_guide.md        # Visual asset catalog & capture checklist
+│   ├── testing.md                  # Test suite verification documentation
+│   └── workflow.md                 # Autonomous ingestion walkthrough
+├── pipeline/                       # 6-Stage Automated ETL Pipeline
+│   ├── clean_data.py               # Imputation & feature engineering
+│   ├── deduplicate.py              # Two-tier collision deduplication
+│   ├── fetch_data.py               # Extraction stage
+│   ├── load_data.py                # Transactional database loader
+│   ├── pipeline_runner.py          # Master pipeline orchestrator
+│   ├── transform_data.py           # Standardization & ORM packaging
+│   ├── validate_data.py            # Schema verification & row quarantine
+│   └── data_sources/               # Extensible Data Source Adapters
+├── src/                            # Legacy Static EDA Scripts (Preserved)
+│   ├── data_cleaning.py            # Baseline cleaning script
+│   ├── exploratory_analysis.py     # Statistical computation module
+│   └── visualization.py            # 12 static PNG chart generators
+├── tests/                          # Automated Pytest Test Suites (50 Tests)
+├── data/                           # Catalog Data (netflix_titles.csv)
+├── logs/                           # Dedicated application, pipeline & scheduler logs
+├── visualizations/                 # 12 publication-grade static figures
+├── Dockerfile.api                  # FastAPI production container definition
+├── Dockerfile.dashboard            # Streamlit production container definition
+├── docker-compose.yml              # Multi-service container orchestration stack
+├── requirements.txt                # Python package dependency manifest
+├── run_analysis.py                 # Master one-click static analysis pipeline
+└── README.md                       # Project documentation root
 ```
 
 ---
 
-## ⚡ Installation Instructions
+## ⚡ Installation & Quick Start
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/netflix-movies-shows-analysis.git
-   cd netflix-movies-shows-analysis
-   ```
+### Prerequisites
+* Python `3.10`, `3.11`, or `3.12+`
+* Git
+* Optional: Docker & Docker Compose
 
-2. **Create and activate a virtual environment** (recommended):
-   ```bash
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
+### Local Developer Setup
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/netflix-live-analytics.git
+cd netflix-live-analytics
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+# 2. Create and activate a virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# 3. Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# 4. Copy environment configuration
+cp .env.example .env
+
+# 5. Initialize database tables and run baseline ingestion
+python -c "from database.database import init_db; init_db()"
+python -c "from pipeline.pipeline_runner import run_pipeline; run_pipeline()"
+```
+
+*For complete step-by-step instructions, consult [`docs/installation.md`](docs/installation.md).*
 
 ---
 
-## 🚀 How to Run
+## 🚀 Running the Application
 
-### Option 1: Execute the End-to-End Pipeline in One Command
-Run the master pipeline script to clean data, perform EDA, and generate all 12 publication-quality visualizations:
+### Running Locally (Without Docker)
+
+Run the backend and frontend in separate terminals:
+
+**Terminal 1: Launch FastAPI REST Backend**
+```bash
+uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+**Terminal 2: Launch Streamlit Web Dashboard**
+```bash
+streamlit run dashboard/app.py
+```
+
+### Running with Docker Compose (Recommended)
+Launch the entire containerized platform in a single command:
+```bash
+docker compose up --build
+```
+To run in background (detached mode):
+```bash
+docker compose up -d --build
+```
+
+*For full container management instructions, consult [`docs/docker_deployment.md`](docs/docker_deployment.md).*
+
+---
+
+## 🌐 Service Access URLs
+
+| Interface | URL | Description |
+| :--- | :--- | :--- |
+| **Streamlit Dashboard** | [`http://localhost:8501`](http://localhost:8501) | Full interactive Netflix dark-themed UI |
+| **FastAPI Backend** | [`http://localhost:8000`](http://localhost:8000) | Live analytics REST API |
+| **Swagger UI Docs** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | Interactive OpenAPI testing console |
+| **ReDoc UI Docs** | [`http://localhost:8000/redoc`](http://localhost:8000/redoc) | Alternative clean API documentation |
+| **Health Check** | [`http://localhost:8000/health`](http://localhost:8000/health) | System health and database connectivity probe |
+
+---
+
+## 🧪 Automated Testing & Verification
+
+The repository incorporates **50 automated unit and integration tests** verifying all layers:
+```bash
+python -m pytest tests/ -v
+```
+
+### Test Suite Summary
+* `tests/test_database.py` (3 tests): Entity mappings, upsert logic, DataFrame retrieval.
+* `tests/test_data_sources.py` (6 tests): CSV reading, streaming chunking, API mock ingestion.
+* `tests/test_pipeline.py` (7 tests): Schema validation, row quarantine, 19 derived features, idempotency.
+* `tests/test_incremental_hardening.py` (4 tests): Lifecycle scenarios, conflict resolution, transactional rollback.
+* `tests/test_analytics.py` (9 tests): Statistical distributions, audience demographics, observational insights.
+* `tests/test_api.py` (9 tests): Healthcheck, pagination, search, parameterized filtering.
+* `tests/test_dashboard.py` (5 tests): API client queries, error handling, Plotly chart constructors.
+* `tests/test_automation.py` (7 tests): SHA-256 fingerprinting, scheduler lifecycle, concurrency process locks.
+
+### Backward Compatibility
+Execute the legacy exploratory analysis script to confirm zero regressions:
 ```bash
 python run_analysis.py
 ```
+*(Runs in under 7 seconds, verifying all 12 publication-grade figures in `visualizations/` and updating `reports/insights.md`).*
 
-### Option 2: Run Individual Modular Scripts
-```bash
-# 1. Clean raw data and generate data/netflix_cleaned.csv
-python src/data_cleaning.py
-
-# 2. Run exploratory statistical summaries
-python src/exploratory_analysis.py
-
-# 3. Generate and save all 12 charts to visualizations/
-python src/visualization.py
-```
-
-### Option 3: Launch Interactive Jupyter Notebook
-```bash
-jupyter notebook notebooks/netflix_analysis.ipynb
-```
+*For complete testing documentation, read [`docs/testing.md`](docs/testing.md).*
 
 ---
 
-## 💡 Key Business Insights
+## 🖼️ Visual Assets & UI Showcase
 
-1. **Catalog Composition & Churn Defense**: Movies represent **67.5%** of the catalog, but TV series additions experienced an exponential **400%+ CAGR from 2015 to 2019**. Feature films attract initial sign-ups, while multi-season TV shows drive weekly subscriber retention and reduce customer churn.
-2. **Global Production Hubs**: The **United States (41.5%)**, **India (12.9%)**, and the **United Kingdom (9.6%)** form the top producing triad. Over **14.5%** of titles are cross-border international co-productions, showcasing Netflix's global distribution efficiency.
-3. **Mature Audience Skew**: **71.9%** of the catalog targets mature audiences (**40.7% Adults 18+** and **31.2% Teens 13–17**). Content for kids under 12 accounts for less than 24%, highlighting an acquisition opportunity for family-friendly animation to compete with Disney+.
-4. **The 97-Minute Sweet Spot**: Movie runtimes exhibit a normal distribution with a median of **97.0 minutes** and an IQR between **85 and 113 minutes**. Consumers strongly favor ~95-minute home viewing experiences over 150+ minute theatrical epics.
-5. **Seasonal Ingestion Spikes**: Content releases surge in **January (9.9%)**, **October (9.5%)**, **November (9.7%)**, and **December (8.7%)**, strategically synchronized with holiday vacation binges and Q4 marketing campaigns.
+The dashboard features a curated Netflix dark aesthetic with responsive micro-interactions:
 
-*For complete executive recommendations, read the full report in [`reports/insights.md`](reports/insights.md).*
-
----
-
-## 🖼️ Visualizations Showcase
-
-| Figure | Chart Preview & Description |
+| View | Description |
 | :--- | :--- |
-| **01. Movies vs TV Shows** | ![Movies vs TV Shows](visualizations/01_movies_vs_tvshows.png)<br>*Catalog breakdown: 67.5% Movies vs 32.5% TV Shows.* |
-| **02. Top 10 Countries** | ![Top Countries](visualizations/02_top10_countries.png)<br>*US, India, and UK dominate global content production.* |
-| **04. Content Growth** | ![Content Growth](visualizations/04_content_growth_over_years.png)<br>*Hyperbolic addition trajectory scaling rapidly from 2015 to 2019.* |
-| **09. Movie Duration** | ![Movie Duration](visualizations/09_movie_duration_distribution.png)<br>*Histogram & KDE showing median runtime centered at 97.0 minutes.* |
-| **11. Genre-Rating Heatmap** | ![Heatmap](visualizations/11_genre_rating_heatmap.png)<br>*Two-dimensional matrix cross-tabulating top genres across maturity ratings.* |
-| **12. Comparative Growth** | ![Comparative Growth](visualizations/12_movies_vs_tvshows_growth.png)<br>*Dual-line time series tracking Movie additions vs TV Show additions.* |
+| **Executive Overview** | High-level KPI cards, Movie vs TV donut chart, annual ingestion trajectory, top genres, and observational insights. |
+| **Content & Genres** | Top 12 genres, format genre specializations, and multi-genre hybrid percentage breakdown. |
+| **Temporal Dynamics** | Historical release years, monthly ingestion seasonality, and premiere-to-catalog licensing delay. |
+| **Geographic Footprint** | Global interactive Plotly choropleth world map and international co-production ratios. |
+| **Ratings & Demographics**| Maturity certifications cross-tabulated against formats and 5-tier audience demographic segments. |
+| **Duration & Longevity** | Movie runtime distribution (97-minute sweet spot) and TV show seasons longevity analysis. |
+| **Content Explorer** | Server-side paginated title browsing with keyword search across title, director, and cast. |
+| **Data Management** | Scheduler operational status, live SHA-256 source fingerprint, on-demand refresh trigger, and audit history ledger. |
 
-*(All 12 high-resolution charts are saved in the [`visualizations/`](visualizations/) directory).*
+*(To capture or inspect screenshot procedures, consult [`docs/screenshots_guide.md`](docs/screenshots_guide.md)).*
 
 ---
 
-## 🔮 Future Improvements
+## 🔮 Future Scope & Roadmap
 
-- **Viewership Data Integration**: Merge with public streaming ratings (e.g., Nielsen streaming top 10, IMDb user ratings, Rotten Tomatoes tomato-meter scores) to correlate runtime and genre with audience satisfaction.
-- **Interactive Dashboard**: Build an interactive Power BI or Streamlit dashboard enabling dynamic filtering by country, release year, and maturity rating.
-- **NLP Metadata Enrichment**: Perform natural language topic modeling and sentiment analysis on plot `description` texts to discover emerging narrative motifs.
-- **International Availability Tracking**: Track licensing expiration and regional geo-availability across worldwide Netflix regions.
+* **Live Streaming Ingestion**: Integration with real-time streaming message queues (Kafka / AWS Kinesis) for instantaneous content updates.
+* **Production PostgreSQL Staging**: Multi-replica database clusters with automated read-write connection pooling.
+* **ML Recommendation Layer**: Collaborative filtering and content embedding vectors for similarity recommendations.
+* **User Authentication & RBAC**: JWT-secured API routes and role-based access for catalog administrators.
+* **Automated Data Quality Alerts**: Webhook alerts (Slack/Email) triggered on pipeline quarantine threshold breaches.
+* **Continuous Integration (CI/CD)**: GitHub Actions workflows executing Pytest, Docker builds, and security scans on push.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add amazing feature'`).
+4. Ensure all automated tests pass (`python -m pytest tests/ -v`).
+5. Push to the branch (`git push origin feature/amazing-feature`).
+6. Open a Pull Request.
 
 ---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-"# NETFlIX_SHOWS_AND_MOVIED" 

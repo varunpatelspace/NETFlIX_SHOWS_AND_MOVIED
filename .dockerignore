@@ -1,0 +1,40 @@
+# Version Control & IDE
+.git
+.github
+.gitignore
+.vscode/
+.idea/
+
+# Python Virtual Environments & Caches
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Environment Secrets
+.env
+
+# Ephemeral Databases (Managed via Named Docker Volumes)
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/netflix_cleaned.csv
+
+# Application Logs & Generated Visualizations
+logs/*
+!logs/.gitkeep
+visualizations/*.png
+reports/insights.md
+
+# Testing, Scratch & Documentation (Not needed in production images)
+tests/
+docs/
+*.ipynb
+scratch/
+.system_generated/
