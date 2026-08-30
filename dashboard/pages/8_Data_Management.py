@@ -2,12 +2,21 @@
 Page 8: Data Management, Automation Status, and Pipeline Monitoring.
 """
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path for Streamlit Community Cloud package resolution
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 import pandas as pd
 
 st.set_page_config(page_title="Data Management | Netflix Analytics", page_icon="⚙️", layout="wide")
 
 from dashboard.components import (
+
     ApiClient,
     apply_netflix_theme,
     render_section_header

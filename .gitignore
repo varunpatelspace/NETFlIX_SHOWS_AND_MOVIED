@@ -55,4 +55,9 @@ logs/
 .pytest_cache/
 .env
 .venv/
+# Streamlit Secrets (Secrets must never be committed)
+.streamlit/secrets.toml
+!.streamlit/secrets.toml.example
+
+
 
