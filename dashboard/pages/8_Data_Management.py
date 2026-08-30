@@ -176,7 +176,7 @@ with col_mode:
 
 with col_btn:
     st.markdown("<div style='margin-top: 1.8rem;'></div>", unsafe_allow_html=True)
-    trigger_refresh = st.button("🚀 Trigger Manual Refresh", use_container_width=True)
+    trigger_refresh = st.button("🚀 Trigger Manual Refresh", width="stretch")
 
 if trigger_refresh:
     with st.spinner(f"Running ETL pipeline in mode '{selected_mode}'..."):
@@ -267,6 +267,6 @@ if history_resp["success"]:
             })
 
         df_history = pd.DataFrame(table_data)
-        st.dataframe(df_history, use_container_width=True, hide_index=True)
+        st.dataframe(df_history, width="stretch", hide_index=True)
 else:
     st.error(f"Failed to load pipeline execution history: {history_resp.get('error')}")

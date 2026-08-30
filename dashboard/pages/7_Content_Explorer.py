@@ -67,7 +67,7 @@ total_pages = max(1, math.ceil(total_matching / page_size))
 nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
 
 with nav_col1:
-    if st.button("⬅️ Previous Page", disabled=(st.session_state.catalog_page <= 1), use_container_width=True):
+    if st.button("⬅️ Previous Page", disabled=(st.session_state.catalog_page <= 1), width="stretch"):
         st.session_state.catalog_page -= 1
         st.rerun()
 
@@ -78,7 +78,7 @@ with nav_col2:
     )
 
 with nav_col3:
-    if st.button("Next Page ➡️", disabled=(st.session_state.catalog_page >= total_pages), use_container_width=True):
+    if st.button("Next Page ➡️", disabled=(st.session_state.catalog_page >= total_pages), width="stretch"):
         st.session_state.catalog_page += 1
         st.rerun()
 
@@ -100,7 +100,7 @@ else:
         })
 
     df_display = pd.DataFrame(table_rows)
-    st.dataframe(df_display, use_container_width=True, hide_index=True)
+    st.dataframe(df_display, width="stretch", hide_index=True)
 
     # Title Selection for Detail View
     render_section_header("Title Detail Inspection")

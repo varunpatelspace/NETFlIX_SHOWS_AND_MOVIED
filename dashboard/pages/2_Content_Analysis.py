@@ -44,7 +44,7 @@ with col1:
     if type_data.get("labels"):
         st.plotly_chart(
             plot_donut_chart(type_data["labels"], type_data["values"], title="Content Formats: Movies vs TV Shows"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No content format records matching filter.")
@@ -54,7 +54,7 @@ with col2:
     if genres.get("labels"):
         st.plotly_chart(
             plot_horizontal_bar(genres["labels"][:12], genres["values"][:12], title="Top 12 Overall Genre Categories"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No genre records matching filter.")
@@ -68,7 +68,7 @@ with col_m:
     if m_genres.get("labels"):
         st.plotly_chart(
             plot_horizontal_bar(m_genres["labels"][:10], m_genres["values"][:10], title="Top 10 Movie Genres", color="#E50914"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No movie genre records matching filter.")
@@ -78,7 +78,7 @@ with col_tv:
     if tv_genres.get("labels"):
         st.plotly_chart(
             plot_horizontal_bar(tv_genres["labels"][:10], tv_genres["values"][:10], title="Top 10 TV Show Genres", color="#B81D24"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No TV genre records matching filter.")
@@ -92,7 +92,7 @@ with c_cert1:
     if rating_data.get("labels"):
         st.plotly_chart(
             plot_vertical_bar(rating_data["labels"][:10], rating_data["values"][:10], title="Top 10 Maturity Certification Codes"),
-            use_container_width=True
+            width="stretch"
         )
 
 with c_cert2:

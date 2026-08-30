@@ -47,7 +47,7 @@ with col1:
     if yearly_add.get("years"):
         st.plotly_chart(
             plot_line_chart(yearly_add["years"], yearly_add["counts"], title="Catalog Additions by Year (Ingestion Volume)"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No yearly addition records matching filter.")
@@ -56,7 +56,7 @@ with col2:
     if yearly_rel.get("years"):
         st.plotly_chart(
             plot_line_chart(yearly_rel["years"], yearly_rel["counts"], title="Content Premiere Release Year Distribution (Modern Era)", line_color="#E5A914"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No release year records matching filter.")
@@ -74,7 +74,7 @@ if comp.get("years"):
             name_b="TV Shows Added",
             title="Annual Ingestion Comparison by Format"
         ),
-        use_container_width=True
+        width="stretch"
     )
 
 # 3. Seasonality & Licensing Lag
@@ -85,7 +85,7 @@ with col_s1:
     if monthly.get("months"):
         st.plotly_chart(
             plot_vertical_bar(monthly["months"], monthly["counts"], title="Monthly Ingestion Seasonality (January - December)", color="#B81D24"),
-            use_container_width=True
+            width="stretch"
         )
 
 with col_s2:

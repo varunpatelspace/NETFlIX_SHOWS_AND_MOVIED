@@ -90,7 +90,7 @@ tiers = movies.get("duration_tiers", {})
 if tiers.get("labels"):
     st.plotly_chart(
         plot_vertical_bar(tiers["labels"], tiers["values"], title="Movie Duration Categorical Tiers", color="#E50914"),
-        use_container_width=True
+        width="stretch"
     )
 
 # -----------------------------------------------------------------------------
@@ -148,5 +148,5 @@ season_dist = tv.get("season_distribution", {})
 if season_dist.get("labels"):
     st.plotly_chart(
         plot_vertical_bar(season_dist["labels"], season_dist["values"], title="TV Show Season Distribution (Seasons 1 - 10)", color="#B81D24"),
-        use_container_width=True
+        width="stretch"
     )

@@ -57,7 +57,7 @@ with col1:
     if type_data.get("labels"):
         st.plotly_chart(
             plot_donut_chart(type_data["labels"], type_data["values"], title="Catalog Split: Movies vs TV Shows"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No content format records matching current filters.")
@@ -67,7 +67,7 @@ with col2:
     if yearly.get("years"):
         st.plotly_chart(
             plot_line_chart(yearly["years"], yearly["counts"], title="Annual Content Additions Trajectory"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No addition trend records matching current filters.")
@@ -80,7 +80,7 @@ with col3:
     if genres.get("labels"):
         st.plotly_chart(
             plot_horizontal_bar(genres["labels"][:10], genres["values"][:10], title="Top 10 Global Content Categories"),
-            use_container_width=True
+            width="stretch"
         )
 
 with col4:
@@ -88,7 +88,7 @@ with col4:
     if geo.get("labels"):
         st.plotly_chart(
             plot_horizontal_bar(geo["labels"][:10], geo["values"][:10], title="Top 10 Producing Territories", color="#991419"),
-            use_container_width=True
+            width="stretch"
         )
 
 # 4. Insights

@@ -45,7 +45,7 @@ render_section_header("Interactive Global Production Map")
 if top_all.get("labels"):
     st.plotly_chart(
         plot_world_map(top_all["labels"], top_all["values"], title="Global Production Volume by Country"),
-        use_container_width=True
+        width="stretch"
     )
 
 # 2. Producing Country Rankings
@@ -62,7 +62,7 @@ with col1:
                 color="#E50914",
                 height=450
             ),
-            use_container_width=True
+            width="stretch"
         )
 
 with col2:
@@ -75,7 +75,7 @@ with col2:
                 color="#B81D24",
                 height=450
             ),
-            use_container_width=True
+            width="stretch"
         )
 
 # 3. International Co-Productions Summary

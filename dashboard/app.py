@@ -79,7 +79,7 @@ with col_chart1:
             values=type_data["values"],
             title="Catalog Composition: Movies vs TV Shows"
         )
-        st.plotly_chart(fig_donut, use_container_width=True)
+        st.plotly_chart(fig_donut, width="stretch")
     else:
         st.info("No content format records matching current filters.")
 
@@ -91,7 +91,7 @@ with col_chart2:
             y=yearly_data["counts"],
             title="Content Ingestion Trajectory (Titles Added by Year)"
         )
-        st.plotly_chart(fig_growth, use_container_width=True)
+        st.plotly_chart(fig_growth, width="stretch")
     else:
         st.info("No temporal records matching current filters.")
 
@@ -108,7 +108,7 @@ with col_chart3:
             values=genre_data["values"][:10],
             title="Top 10 Global Content Classifications"
         )
-        st.plotly_chart(fig_genres, use_container_width=True)
+        st.plotly_chart(fig_genres, width="stretch")
 
 with col_chart4:
     geo_data = geographic.get("top_countries_all_credits", {})
@@ -119,7 +119,7 @@ with col_chart4:
             title="Top 10 Content Producing Territories",
             color="#991419"
         )
-        st.plotly_chart(fig_geo, use_container_width=True)
+        st.plotly_chart(fig_geo, width="stretch")
 
 # -----------------------------------------------------------------------------
 # 4. Evidence-Based Insights Section

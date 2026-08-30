@@ -74,7 +74,7 @@ with col_d1:
     if age_groups.get("labels"):
         st.plotly_chart(
             plot_donut_chart(age_groups["labels"], age_groups["values"], title="5-Tier Audience Demographics"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No demographic records matching filter.")
@@ -83,7 +83,7 @@ with col_d2:
     if ratings.get("labels"):
         st.plotly_chart(
             plot_vertical_bar(ratings["labels"][:10], ratings["values"][:10], title="Top 10 Certification Codes"),
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.info("No certification records matching filter.")
@@ -100,5 +100,5 @@ if type_by_rating.get("ratings"):
             name_b="TV Shows",
             title="Content Volume by Maturity Rating and Format"
         ),
-        use_container_width=True
+        width="stretch"
     )

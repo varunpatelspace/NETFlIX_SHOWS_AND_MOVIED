@@ -28,27 +28,27 @@ AGE_GROUPS = [
 def init_filter_state():
     """Ensure session state default variables exist for filtering."""
     if "f_content_type" not in st.session_state:
-        st.session_state.f_content_type = "All"
+        st.session_state["f_content_type"] = "All"
     if "f_year_range" not in st.session_state:
-        st.session_state.f_year_range = (1940, 2021)
+        st.session_state["f_year_range"] = (1940, 2021)
     if "f_country" not in st.session_state:
-        st.session_state.f_country = "All"
+        st.session_state["f_country"] = "All"
     if "f_genre" not in st.session_state:
-        st.session_state.f_genre = "All"
+        st.session_state["f_genre"] = "All"
     if "f_rating" not in st.session_state:
-        st.session_state.f_rating = "All"
+        st.session_state["f_rating"] = "All"
     if "f_age_group" not in st.session_state:
-        st.session_state.f_age_group = "All"
+        st.session_state["f_age_group"] = "All"
 
 
 def reset_filters():
     """Reset all filter states to defaults."""
-    st.session_state.f_content_type = "All"
-    st.session_state.f_year_range = (1940, 2021)
-    st.session_state.f_country = "All"
-    st.session_state.f_genre = "All"
-    st.session_state.f_rating = "All"
-    st.session_state.f_age_group = "All"
+    st.session_state["f_content_type"] = "All"
+    st.session_state["f_year_range"] = (1940, 2021)
+    st.session_state["f_country"] = "All"
+    st.session_state["f_genre"] = "All"
+    st.session_state["f_rating"] = "All"
+    st.session_state["f_age_group"] = "All"
 
 
 def render_sidebar_filters() -> Dict[str, Any]:
@@ -75,16 +75,20 @@ def render_sidebar_filters() -> Dict[str, Any]:
         content_type = st.selectbox(
             "Content Type",
             options=["All", "Movie", "TV Show"],
-            index=["All", "Movie", "TV Show"].index(st.session_state.f_content_type),
+            index=["All", "Movie", "TV Show"].index(st.session_state["f_content_type"]),
             key="f_content_type"
         )
 
         # 2. Release Year Range
+        min_year = 1925
+        max_year = 2021
+        if "f_year_range" not in st.session_state:
+            st.session_state["f_year_range"] = (1940, max_year)
+
         year_range = st.slider(
             "Release Year Range",
-            min_value=1925,
-            max_value=2021,
-            value=st.session_state.f_year_range,
+            min_value=min_year,
+            max_value=max_year,
             key="f_year_range"
         )
 
@@ -92,7 +96,7 @@ def render_sidebar_filters() -> Dict[str, Any]:
         country = st.selectbox(
             "Country",
             options=POPULAR_COUNTRIES,
-            index=POPULAR_COUNTRIES.index(st.session_state.f_country) if st.session_state.f_country in POPULAR_COUNTRIES else 0,
+            index=POPULAR_COUNTRIES.index(st.session_state["f_country"]) if st.session_state["f_country"] in POPULAR_COUNTRIES else 0,
             key="f_country"
         )
 
@@ -100,7 +104,7 @@ def render_sidebar_filters() -> Dict[str, Any]:
         genre = st.selectbox(
             "Genre Category",
             options=POPULAR_GENRES,
-            index=POPULAR_GENRES.index(st.session_state.f_genre) if st.session_state.f_genre in POPULAR_GENRES else 0,
+            index=POPULAR_GENRES.index(st.session_state["f_genre"]) if st.session_state["f_genre"] in POPULAR_GENRES else 0,
             key="f_genre"
         )
 
@@ -108,7 +112,7 @@ def render_sidebar_filters() -> Dict[str, Any]:
         rating = st.selectbox(
             "Maturity Rating",
             options=POPULAR_RATINGS,
-            index=POPULAR_RATINGS.index(st.session_state.f_rating) if st.session_state.f_rating in POPULAR_RATINGS else 0,
+            index=POPULAR_RATINGS.index(st.session_state["f_rating"]) if st.session_state["f_rating"] in POPULAR_RATINGS else 0,
             key="f_rating"
         )
 
@@ -116,12 +120,12 @@ def render_sidebar_filters() -> Dict[str, Any]:
         age_group = st.selectbox(
             "Audience Demographic",
             options=AGE_GROUPS,
-            index=AGE_GROUPS.index(st.session_state.f_age_group) if st.session_state.f_age_group in AGE_GROUPS else 0,
+            index=AGE_GROUPS.index(st.session_state["f_age_group"]) if st.session_state["f_age_group"] in AGE_GROUPS else 0,
             key="f_age_group"
         )
 
         # Reset button
-        st.button("Reset Filters", on_click=reset_filters, use_container_width=True)
+        st.button("Reset Filters", on_click=reset_filters, width="stretch")
 
     # Build active query dictionary
     filters: Dict[str, Any] = {}
