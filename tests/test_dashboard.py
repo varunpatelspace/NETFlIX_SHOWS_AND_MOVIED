@@ -26,6 +26,25 @@ def test_api_client_initialization():
     assert client.timeout == 5
 
 
+def test_resolve_api_base_url(monkeypatch):
+    from dashboard.components.api_client import resolve_api_base_url
+
+    # 1. Explicit argument overrides all
+    assert resolve_api_base_url("http://explicit-url:5000/") == "http://explicit-url:5000"
+
+    # 2. Environment variable resolution
+    monkeypatch.setenv("API_BASE_URL", "https://cloud-api.onrender.com/")
+    assert resolve_api_base_url() == "https://cloud-api.onrender.com"
+
+    # 3. Streamlit secrets mock resolution
+    monkeypatch.delenv("API_BASE_URL", raising=False)
+    fake_st = MagicMock()
+    fake_st.secrets = {"API_BASE_URL": "https://secret-api.onrender.com/"}
+    with patch.dict("sys.modules", {"streamlit": fake_st}):
+        assert resolve_api_base_url() == "https://secret-api.onrender.com"
+
+
+
 def test_api_client_connection_error():
     # Attempting to connect to an unreachable port should return a clean error dict, not raise
     client = ApiClient(base_url="http://127.0.0.1:59999", timeout=1)

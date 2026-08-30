@@ -8,15 +8,43 @@ from typing import Dict, Any, Optional, List
 from config.settings import API_BASE_URL
 
 
+def resolve_api_base_url(base_url: Optional[str] = None) -> str:
+    """
+    Resolve backend API base URL across multiple environments.
+    
+    Resolution order:
+      1. Explicit argument passed to ApiClient(base_url=...)
+      2. OS Environment variable: API_BASE_URL
+      3. Streamlit secrets: st.secrets["API_BASE_URL"] (for Streamlit Community Cloud)
+      4. Fallback default from config.settings: API_BASE_URL (http://127.0.0.1:8000)
+    """
+    if base_url:
+        return base_url.rstrip("/")
+
+    env_url = os.getenv("API_BASE_URL")
+    if env_url:
+        return env_url.rstrip("/")
+
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and "API_BASE_URL" in st.secrets:
+            return str(st.secrets["API_BASE_URL"]).rstrip("/")
+    except Exception:
+        pass
+
+    return API_BASE_URL.rstrip("/")
+
+
 class ApiClient:
     """
     HTTP client for the Netflix Live Content Analytics API.
     """
 
     def __init__(self, base_url: Optional[str] = None, timeout: int = 15):
-        self.base_url = (base_url or os.getenv("API_BASE_URL", API_BASE_URL)).rstrip("/")
+        self.base_url = resolve_api_base_url(base_url)
         self.timeout = timeout
         self.session = requests.Session()
+
 
     def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Helper for GET requests with clean error catching."""

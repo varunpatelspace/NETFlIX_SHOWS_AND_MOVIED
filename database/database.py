@@ -54,6 +54,51 @@ def reset_db():
     logger.warning("Database tables dropped and recreated.")
 
 
+def seed_database_if_empty():
+    """
+    Safely seed the database with initial catalog records if the database is empty.
+    
+    Protects existing databases: if records already exist, execution is immediately
+    skipped with zero modification.
+    """
+    from config.settings import AUTO_SEED_DB, DATA_SOURCE_PATH
+    if not AUTO_SEED_DB:
+        logger.info("Database auto-seeding disabled via AUTO_SEED_DB=false.")
+        return
+
+    import os
+    from database.repository import NetflixRepository
+
+    with get_db_context() as db:
+        repo = NetflixRepository(db)
+        count = repo.get_total_count()
+        if count > 0:
+            logger.info(f"Database already populated ({count:,} records). Skipping auto-seed.")
+            return
+
+        logger.info("Database is empty. Checking seed dataset availability...")
+        if not os.path.exists(DATA_SOURCE_PATH):
+            logger.warning(f"Seed dataset not found at '{DATA_SOURCE_PATH}'. Starting with empty database.")
+            return
+
+        logger.info(f"Auto-seeding database from '{DATA_SOURCE_PATH}'...")
+        try:
+            from pipeline.pipeline_runner import run_pipeline
+            report = run_pipeline(
+                source_type="csv",
+                source_path=DATA_SOURCE_PATH,
+                db_session=db,
+                mode="insert_new_only"
+            )
+            logger.info(
+                f"Auto-seeding complete: status={report.get('final_status')}, "
+                f"inserted={report.get('incremental_metrics', {}).get('inserted', 0)}"
+            )
+        except Exception as e:
+            logger.error(f"Auto-seeding failed: {e}", exc_info=True)
+
+
+
 @contextmanager
 def get_db_context() -> Generator[Session, None, None]:
     """

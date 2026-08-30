@@ -50,7 +50,12 @@ with st.spinner("Connecting to Netflix Live Analytics API..."):
 
 if not resp["success"]:
     st.error(f"⚠️ **API Unavailable**: {resp['error']}")
-    st.info("💡 Ensure the FastAPI backend is running via: `uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload`")
+    st.markdown(f"**Targeted Backend URL:** `{client.base_url}`")
+    st.info(
+        "💡 **Connection Guidance:**\n\n"
+        "- **Local Run**: Launch the FastAPI backend via: `uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload`\n"
+        "- **Cloud Deployment**: Ensure the environment variable or Streamlit secret `API_BASE_URL` points to your public FastAPI server (e.g. `https://<your-service>.onrender.com`)."
+    )
     st.stop()
 
 data = resp["data"]

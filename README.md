@@ -5,7 +5,7 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-FF4B4B.svg?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-D71F00.svg?style=flat-square&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-50%20Passed-46D369.svg?style=flat-square&logo=pytest&logoColor=white)](docs/testing.md)
+[![Tests](https://img.shields.io/badge/Tests-52%20Passed-46D369.svg?style=flat-square&logo=pytest&logoColor=white)](docs/testing.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 > An automated, production-grade full-stack data analytics and intelligence platform for entertainment content catalogs. Features automated 6-stage idempotent ETL ingestion, SHA-256 source change detection, relational database storage, a high-performance FastAPI REST backend, and an interactive Netflix-themed Streamlit analytics dashboard.
@@ -353,26 +353,128 @@ docker compose up -d --build
 
 ---
 
+## ☁️ Production Cloud Deployment (Free Tier)
+
+The platform is designed for zero-cost, high-reliability public cloud deployment using a decoupled microservice architecture:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  PUBLIC WEB CLIENTS / BROWSER                            │
+└──────────────┬────────────────────────────┬──────────────┘
+               │ HTTPS                      │ HTTPS
+               ▼                            ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│ Streamlit Community Cloud    │ │ Render (Free Web Service)    │
+│ Frontend UI Dashboard        │ │ FastAPI REST Backend         │
+│ • Domain: *.streamlit.app    │ │ • Domain: *.onrender.com     │
+│ • 100% Free, Zero Cold-Sleep │ │ • OpenAPI /docs Console      │
+│ • Reads API_BASE_URL secret  │ │ • Ephemeral DB Auto-Seeding  │
+└──────────────┬───────────────┘ └──────────────────────────────┘
+               │                                ▲
+               └──────────── HTTP REST ─────────┘
+```
+
+### Step 1: Deploy FastAPI Backend on Render (Free Tier)
+
+Render provides free hosting for Python web services with automated SSL and Git integration.
+
+#### Method A: Using Render Blueprint (`render.yaml`) — Recommended
+1. Push your repository to GitHub: `https://github.com/<your-username>/NETFlIX_SHOWS_AND_MOVIED`.
+2. Navigate to [Render Dashboard](https://dashboard.render.com/) and click **New +** → **Blueprint**.
+3. Connect your GitHub repository. Render automatically detects [`render.yaml`](render.yaml) and configures the service:
+   - **Service Type**: Web Service (`python`)
+   - **Build Command**: `pip install -r requirements.txt && python -c "from database.database import init_db; from pipeline.pipeline_runner import run_pipeline; init_db(); run_pipeline()"`
+   - **Start Command**: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+4. Click **Apply**. Once built, note your backend URL (e.g. `https://netflix-live-analytics-api.onrender.com`).
+
+#### Method B: Manual Web Service Setup on Render
+1. In Render, click **New +** → **Web Service**.
+2. Connect your repository and configure:
+   - **Name**: `netflix-live-analytics-api`
+   - **Language**: `Python 3`
+   - **Region**: Oregon (US West) or closest region
+   - **Branch**: `main`
+   - **Build Command**: `pip install -r requirements.txt && python -c "from database.database import init_db; from pipeline.pipeline_runner import run_pipeline; init_db(); run_pipeline()"`
+   - **Start Command**: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+   - **Instance Type**: `Free`
+3. In **Environment Variables**, add:
+   - `PYTHON_VERSION` = `3.11.9`
+   - `DATABASE_URL` = `sqlite:///data/netflix_live.db`
+   - `DATA_SOURCE_PATH` = `data/netflix_titles.csv`
+   - `AUTO_SEED_DB` = `true`
+   - `ENABLE_SCHEDULER` = `true`
+   - `CORS_ORIGINS` = `http://localhost:8501,https://*.streamlit.app`
+4. Click **Create Web Service**. Verify `https://<your-service>.onrender.com/health` returns `status: "healthy"`.
+
+---
+
+### Step 2: Deploy Streamlit Dashboard on Streamlit Community Cloud
+
+Streamlit Community Cloud provides 100% free hosting with native GitHub integration, zero cold-sleep, and instant deployment.
+
+1. Go to [share.streamlit.io](https://share.streamlit.io/) and sign in with GitHub.
+2. Click **Create app** (or **New app**).
+3. Fill in the repository settings:
+   - **Repository**: `<your-username>/NETFlIX_SHOWS_AND_MOVIED`
+   - **Branch**: `main`
+   - **Main file path**: `dashboard/app.py`
+   - **App URL**: `netflix-analytics` (or your preferred subdomain: `netflix-analytics.streamlit.app`)
+4. Expand **Advanced settings...** and configure **Secrets**:
+   ```toml
+   API_BASE_URL = "https://<your-backend-service>.onrender.com"
+   ```
+5. Click **Deploy!** Your interactive dashboard is immediately live at:
+   `https://<your-app>.streamlit.app`
+
+---
+
+### Step 3: Containerized Cloud Deployment (Railway / Koyeb / Fly.io / VPS)
+
+If you prefer containerized hosting, the repository includes production-hardened Dockerfiles with dynamic `$PORT` support:
+* **API Service**: `Dockerfile.api`
+* **Dashboard Service**: `Dockerfile.dashboard`
+* **Local Multi-Service**: `docker-compose.yml`
+
+---
+
+### 📋 Production Deployment Readiness Checklist
+
+| Item | Status | Verification Detail |
+| :--- | :---: | :--- |
+| **Backend Deployable** | ✅ Ready | Verified on Uvicorn ASGI with dynamic `$PORT` and `render.yaml` / `Procfile` |
+| **Dashboard Deployable** | ✅ Ready | Configured with `.streamlit/config.toml` (dark theme, headless, secure) |
+| **Environment Variables** | ✅ Ready | Fully documented in `.env.example` with zero-config local defaults |
+| **Database Initialization** | ✅ Ready | Dual-layer: build-time pre-population + runtime safe auto-seeding (`AUTO_SEED_DB`) |
+| **API URL Configurable** | ✅ Ready | Resolved via `base_url` → `os.getenv` → `st.secrets` → local default |
+| **CORS Hardened** | ✅ Ready | Configurable `CORS_ORIGINS` with RFC 6454-compliant regex for `*.streamlit.app` |
+| **Start Commands Verified** | ✅ Ready | Verified for both local development and cloud production platforms |
+| **Requirements Verified** | ✅ Ready | Tested with locked `runtime.txt` (`python-3.11.9`) |
+| **Tests Passing** | ✅ Ready | **52/52 automated tests passing** across all modules with zero warnings |
+| **Documentation Added** | ✅ Ready | Complete cloud deployment instructions and platform configuration guide |
+
+---
+
 ## 🌐 Service Access URLs
 
-| Interface | URL | Description |
-| :--- | :--- | :--- |
-| **Streamlit Dashboard** | [`http://localhost:8501`](http://localhost:8501) | Full interactive Netflix dark-themed UI |
-| **FastAPI Backend** | [`http://localhost:8000`](http://localhost:8000) | Live analytics REST API |
-| **Swagger UI Docs** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | Interactive OpenAPI testing console |
-| **ReDoc UI Docs** | [`http://localhost:8000/redoc`](http://localhost:8000/redoc) | Alternative clean API documentation |
-| **Health Check** | [`http://localhost:8000/health`](http://localhost:8000/health) | System health and database connectivity probe |
+| Interface | Local URL | Cloud Production Example | Description |
+| :--- | :--- | :--- | :--- |
+| **Streamlit Dashboard** | [`http://localhost:8501`](http://localhost:8501) | `https://netflix-analytics.streamlit.app` | Full interactive Netflix dark-themed UI |
+| **FastAPI Backend** | [`http://localhost:8000`](http://localhost:8000) | `https://netflix-api.onrender.com` | Live analytics REST API |
+| **Swagger UI Docs** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | `https://netflix-api.onrender.com/docs` | Interactive OpenAPI testing console |
+| **ReDoc UI Docs** | [`http://localhost:8000/redoc`](http://localhost:8000/redoc) | `https://netflix-api.onrender.com/redoc` | Alternative clean API documentation |
+| **Health Check** | [`http://localhost:8000/health`](http://localhost:8000/health) | `https://netflix-api.onrender.com/health` | System health and database connectivity probe |
 
 ---
 
 ## 🧪 Automated Testing & Verification
 
-The repository incorporates **50 automated unit and integration tests** verifying all layers:
+The repository incorporates **52 automated unit and integration tests** verifying all layers:
 ```bash
 python -m pytest tests/ -v
 ```
 
 ### Test Suite Summary
+
 * `tests/test_database.py` (3 tests): Entity mappings, upsert logic, DataFrame retrieval.
 * `tests/test_data_sources.py` (6 tests): CSV reading, streaming chunking, API mock ingestion.
 * `tests/test_pipeline.py` (7 tests): Schema validation, row quarantine, 19 derived features, idempotency.

@@ -32,12 +32,22 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
 # API Configuration
 API_HOST = os.getenv("API_HOST", "127.0.0.1")
-API_PORT = int(os.getenv("API_PORT", "8000"))
+API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", "8000")))
 API_BASE_URL = os.getenv("API_BASE_URL", f"http://{API_HOST}:{API_PORT}")
+
+# CORS Configuration (comma-separated origins or '*' for public access)
+ALLOWED_ORIGINS_RAW = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:8501,http://127.0.0.1:8501,http://localhost:8000,http://127.0.0.1:8000,http://localhost:8080,http://127.0.0.1:8080,http://localhost:3000"
+)
+CORS_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS_RAW.split(",") if origin.strip()]
+
+# Database Auto-Seeding (seeds empty database on fresh cloud container deployment)
+AUTO_SEED_DB = os.getenv("AUTO_SEED_DB", "true").lower() in ("true", "1", "yes")
 
 # Dashboard Configuration
 DASHBOARD_HOST = os.getenv("DASHBOARD_HOST", "127.0.0.1")
-DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "8501"))
+DASHBOARD_PORT = int(os.getenv("PORT", os.getenv("DASHBOARD_PORT", "8501")))
 
 # Automation & Scheduler Configuration
 ENABLE_SCHEDULER = os.getenv("ENABLE_SCHEDULER", "false").lower() in ("true", "1", "yes")
@@ -49,3 +59,4 @@ UPDATE_FREQUENCY = os.getenv("UPDATE_FREQUENCY", "MANUAL").upper()
 # Logging Configuration
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_FILE = LOGS_DIR / "platform.log"
+

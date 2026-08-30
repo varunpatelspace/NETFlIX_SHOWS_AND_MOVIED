@@ -3,8 +3,10 @@ Unit Tests for Database Layer (database/database.py, models.py, repository.py).
 """
 
 import os
+from unittest.mock import patch
 import pytest
 from sqlalchemy import create_engine
+
 from sqlalchemy.orm import sessionmaker
 
 from database.database import Base
@@ -179,3 +181,22 @@ def test_dataframe_retrieval(test_db_session):
     year_df = repo.get_dataframe(min_year=2018)
     assert len(year_df) == 1
     assert year_df.iloc[0]["title"] == "Show B"
+
+
+def test_seed_database_if_empty_protection(monkeypatch):
+    """Ensure seed_database_if_empty skips without error if disabled or already populated."""
+    from database.database import seed_database_if_empty
+
+    # Case 1: Disabled via AUTO_SEED_DB=false
+    monkeypatch.setattr("config.settings.AUTO_SEED_DB", False)
+    # Should safely return without error
+    seed_database_if_empty()
+
+    # Case 2: Populated database test (safety check)
+    monkeypatch.setattr("config.settings.AUTO_SEED_DB", True)
+    with patch("database.repository.NetflixRepository.get_total_count", return_value=500):
+        with patch("pipeline.pipeline_runner.run_pipeline") as mock_pipeline:
+            seed_database_if_empty()
+            # Pipeline MUST NOT be called if database already has records!
+            mock_pipeline.assert_not_called()
+

@@ -9,8 +9,9 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from contextlib import asynccontextmanager
-from config.settings import API_HOST, API_PORT
-from database.database import init_db
+from config.settings import API_HOST, API_PORT, CORS_ORIGINS
+
+from database.database import init_db, seed_database_if_empty
 from automation.scheduler import start_scheduler, stop_scheduler
 from config.logging_config import setup_logging
 from pipeline.validate_data import DataValidationError
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
     """Manage application startup and graceful shutdown tasks."""
     logger.info("FastAPI Startup: Initializing structured logging and database tables...")
     init_db()
+    seed_database_if_empty()
     logger.info("FastAPI Startup: Checking background scheduler...")
     start_scheduler()
     yield
@@ -49,14 +51,17 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware for modern frontend integration
+# CORS Middleware configuration supporting local dev and production Streamlit Cloud domains
+allow_all_origins = "*" in CORS_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"] if allow_all_origins else CORS_ORIGINS,
+    allow_origin_regex=r"https://.*\.streamlit\.app" if not allow_all_origins else None,
+    allow_credentials=False if allow_all_origins else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Centralized Error Handlers
 @app.exception_handler(HTTPException)

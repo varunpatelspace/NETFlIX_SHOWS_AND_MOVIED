@@ -1,0 +1,39 @@
+# =============================================================================
+# Render Blueprint - Netflix Live Content Analytics Platform
+# FastAPI Backend Web Service (Free Tier)
+# =============================================================================
+
+services:
+  - type: web
+    name: netflix-live-analytics-api
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt && python -c "from database.database import init_db; from pipeline.pipeline_runner import run_pipeline; init_db(); run_pipeline()"
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        value: sqlite:///data/netflix_live.db
+      - key: DATA_SOURCE_TYPE
+        value: csv
+      - key: DATA_SOURCE_PATH
+        value: data/netflix_titles.csv
+      - key: DATA_UPDATE_MODE
+        value: insert_new_only
+      - key: AUTO_SEED_DB
+        value: "true"
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      - key: UPDATE_FREQUENCY_SECONDS
+        value: "3600"
+      - key: AUTO_REFRESH_ENABLED
+        value: "true"
+      - key: SOURCE_CHANGE_DETECTION
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: "http://localhost:8501,http://127.0.0.1:8501,https://*.streamlit.app"
